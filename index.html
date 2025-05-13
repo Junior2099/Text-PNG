@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Texto para PNG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"] {
+            padding: 0.5rem 1rem;
+            width: 300px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            background: #007bff;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .preview {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Gerador de Texto em PNG</h1>
+        <input type="text" id="texto" placeholder="Digite uma palavra ou frase" oninput="forcarUppercase()" />
+        <br />
+        <button onclick="gerarImagem()">Salvar como PNG</button>
+        <div class="preview" id="preview"></div>
+    </div>
+
+    <script>
+        function forcarUppercase() {
+            const input = document.getElementById("texto");
+            input.value = input.value.toUpperCase();
+        }
+
+        function gerarImagem() {
+            let texto = document.getElementById("texto").value.trim().toUpperCase();
+            if (!texto) {
+                alert("Digite algo para gerar a imagem.");
+                return;
+            }
+
+            const scale = 4; // Alta resolução
+            const fontSize = 64;
+            const font = `bold ${fontSize * scale}px Arial`;
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            ctx.font = font;
+            const metrics = ctx.measureText(texto);
+
+            const textWidth = Math.ceil(metrics.width);
+            const textHeight = Math.ceil(
+                metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+            );
+
+            canvas.width = textWidth;
+            canvas.height = textHeight;
+
+            ctx.font = font;
+            ctx.fillStyle = "#000";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillText(texto, 0, metrics.actualBoundingBoxAscent);
+
+            const link = document.createElement("a");
+            link.download = "texto.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        }
+
+    </script>
+</body>
+</html>
