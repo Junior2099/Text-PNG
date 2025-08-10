@@ -56,6 +56,20 @@
             font-size: 1.5rem;
             color: #333;
         }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 0.5rem 0 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .controls label {
+            font-size: 0.95rem;
+            color: #333;
+        }
     </style>
 </head>
 
@@ -63,6 +77,11 @@
     <div class="container">
         <h1>Gerador de Texto em PNG</h1>
         <input type="text" id="texto" placeholder="Digite uma palavra ou frase" oninput="forcarUppercase()" />
+        <div class="controls">
+            <label for="cor">Cor:</label>
+            <input type="color" id="cor" value="#000000" />
+            <label><input type="checkbox" id="randomizar" /> Cores aleatórias por letra</label>
+        </div>
         <br />
         <button onclick="gerarImagem()">Salvar como PNG</button>
         <div class="preview" id="preview"></div>
@@ -81,7 +100,10 @@
                 return;
             }
 
-            const scale = 4; // Alta resolução
+            const randomizar = document.getElementById("randomizar").checked;
+            const corSelecionada = document.getElementById("cor").value || "#000000";
+
+            const scale = 4;
             const fontSize = 64;
             const font = `bold ${fontSize * scale}px Arial`;
             const canvas = document.createElement("canvas");
@@ -99,14 +121,34 @@
             canvas.height = textHeight;
 
             ctx.font = font;
-            ctx.fillStyle = "#000";
             ctx.textBaseline = "alphabetic";
-            ctx.fillText(texto, 0, metrics.actualBoundingBoxAscent);
+
+            const ascent = Math.ceil(metrics.actualBoundingBoxAscent);
+
+            if (randomizar) {
+                let xAtual = 0;
+                for (let i = 0; i < texto.length; i++) {
+                    const proximoX = ctx.measureText(texto.slice(0, i + 1)).width;
+                    ctx.fillStyle = corAleatoria();
+                    ctx.fillText(texto[i], xAtual, ascent);
+                    xAtual = proximoX;
+                }
+            } else {
+                ctx.fillStyle = corSelecionada;
+                ctx.fillText(texto, 0, ascent);
+            }
 
             const link = document.createElement("a");
             link.download = "texto.png";
             link.href = canvas.toDataURL("image/png");
             link.click();
+        }
+
+        function corAleatoria() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `rgb(${r}, ${g}, ${b})`;
         }
 
     </script>
